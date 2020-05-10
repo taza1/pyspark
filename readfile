@@ -1,0 +1,41 @@
+print("BEFORE")
+ratings.show()
+print("AFTER")
+# Replace nulls with arbitrary value on column subset
+ratings = ratings.fillna(4, subset=["absorption_rate","comfort"])
+ratings.show()
+
+
+ Define the schema
+schema = StructType([
+  StructField("brand", StringType(), nullable=False),
+  StructField("model", StringType(), nullable=False),
+  StructField("absorption_rate", ByteType(), nullable=True),
+  StructField("comfort", ByteType(), nullable=True)
+])
+better_df = (spark
+             .read
+             .options(header="true")
+             # Pass the predefined schema to the Reader
+             .schema(schema)
+             .csv("/home/repl/workspace/mnt/data_lake/landing/ratings.csv"))
+pprint(better_df.dtypes)
+
+# Read a csv file and set the headers
+df = (spark.read
+      .options(header=True)
+      .csv("/home/repl/workspace/mnt/data_lake/landing/ratings.csv"))
+df.show()
+
+endpoint = "http://localhost:5000"
+# Fill in the correct API key
+api_key = "scientist007"
+# Create the web API’s URL
+authenticated_endpoint = "{}/{}".format(endpoint, api_key)
+# Get the web API’s reply to the endpoint
+api_response = requests.get(authenticated_endpoint).json()
+pprint.pprint(api_response)
+# Create the API’s endpoint for the shops
+shops_endpoint = "{}/{}/{}/{}".format(endpoint, api_key, "diaper/api/v1.0", "____")
+shops = requests.get(shops_endpoint).json()
+print(shops)
